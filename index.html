@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3/dist/hanzi-writer.min.js"></script>
 <style>
   :root{
     --paper: #F7F1E4;
@@ -103,6 +104,30 @@
     height:1px;
     background: linear-gradient(to right, var(--gold), transparent);
     margin: 18px 0 16px;
+  }
+
+  .lang-switch{
+    display:flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow:hidden;
+    margin-bottom: 18px;
+  }
+  .lang-switch-btn{
+    flex:1;
+    border:none;
+    background: var(--card);
+    color: var(--muted);
+    font-family:'Noto Sans SC', 'Inter', sans-serif;
+    font-weight:600;
+    font-size:.82rem;
+    padding: 9px 6px;
+    cursor:pointer;
+  }
+  .lang-switch-btn:first-child{ border-right: 1px solid var(--line); }
+  .lang-switch-btn.active{
+    background: var(--seal);
+    color: #F7EFDD;
   }
   .level-list{
     list-style:none;
@@ -563,6 +588,100 @@
     margin-top:2px;
   }
 
+  /* ---------- Writing practice ---------- */
+  .writing-layout{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    margin-top: 20px;
+    align-items:start;
+  }
+  .char-picker-title{
+    font-size:.72rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color: var(--muted);
+    margin-bottom:10px;
+  }
+  .char-chip-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    max-height: 520px;
+    overflow-y:auto;
+    padding-right:4px;
+  }
+  .char-chip{
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:1.15rem;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    cursor:pointer;
+    color: var(--ink);
+    flex-shrink:0;
+  }
+  .char-chip:hover{ border-color: var(--seal); }
+  .char-chip.active{
+    background: var(--seal);
+    border-color: var(--seal);
+    color: #F7EFDD;
+  }
+  .writing-pad{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .writing-controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+    width:100%;
+    justify-content:center;
+  }
+  .writing-controls button{
+    border:1px solid var(--line);
+    background: var(--paper-dim);
+    color: var(--ink-soft);
+    font-family:'Inter', sans-serif;
+    font-size:.8rem;
+    font-weight:600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+  }
+  .writing-controls button:hover{ border-color: var(--seal); color: var(--ink); }
+  .writer-target{
+    background:
+      repeating-linear-gradient(var(--line) 0 1px, transparent 1px 100%),
+      repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 100%);
+    background-size: 100% 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    touch-action: none;
+  }
+  .writer-info{
+    margin-top:14px;
+    font-size:.85rem;
+    color: var(--muted);
+    text-align:center;
+    min-height: 20px;
+  }
+  .writer-info.success{ color: var(--jade); font-weight:600; }
+
+  @media (max-width: 700px){
+    .writing-layout{ grid-template-columns: 1fr; }
+    .char-chip-list{ max-height:160px; }
+  }
+
   /* ---------- Table ---------- */
   .table-wrap{
     background: var(--card);
@@ -690,7 +809,7 @@
 <body>
 
 <div class="topbar">
-  <div class="brand">學中文 <span style="font-weight:400;font-size:.8rem;color:var(--muted)">HSK</span></div>
+  <div class="brand" id="brandTop">學中文 <span style="font-weight:400;font-size:.8rem;color:var(--muted)">HSK</span></div>
   <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú de niveles">
     <span></span><span></span><span></span>
   </button>
@@ -700,10 +819,14 @@
 
 <div class="shell">
   <aside class="sidebar" id="sidebar">
-    <div class="brand">學中文<small>Vocabulario HSK 3.0</small></div>
+    <div class="lang-switch" id="langSwitch">
+      <button class="lang-switch-btn active" data-app-lang="zh">中文</button>
+      <button class="lang-switch-btn" data-app-lang="ja">日本語</button>
+    </div>
+    <div class="brand" id="brandSidebar">學中文<small>Vocabulario HSK 3.0</small></div>
     <div class="rule"></div>
     <ul class="level-list" id="levelList">
-      <!-- Se llenan por JS: HSK 1 al 9 -->
+      <!-- Se llenan por JS según el idioma elegido -->
     </ul>
     <div class="sidebar-footer">
       Datos desde tu hoja de cálculo de Google, vía Apps Script.
@@ -723,6 +846,7 @@
       <button class="subnav-btn active" data-subview="vocab">Vocabulario</button>
       <button class="subnav-btn" data-subview="lessons">Lecciones</button>
       <button class="subnav-btn" data-subview="readings">Lecturas</button>
+      <button class="subnav-btn" data-subview="writing">Escritura</button>
     </div>
 
     <div id="vocabView">
@@ -753,6 +877,24 @@
       <div class="lessons-grid" id="readingsGrid"></div>
     </div>
 
+    <div id="writingView" style="display:none;">
+      <div class="writing-layout">
+        <div class="char-picker">
+          <div class="char-picker-title">Elige un carácter</div>
+          <div class="char-chip-list" id="charChipList"></div>
+        </div>
+        <div class="writing-pad">
+          <div class="writing-controls">
+            <button id="showStrokesBtn">Ver trazos</button>
+            <button id="retryQuizBtn">Practicar de nuevo</button>
+            <button id="randomCharBtn">Carácter aleatorio</button>
+          </div>
+          <div id="writerTarget" class="writer-target"></div>
+          <div class="writer-info" id="writerInfo">Elige un carácter de la lista para empezar.</div>
+        </div>
+      </div>
+    </div>
+
     <div id="lessonGameView" style="display:none;"></div>
     <div id="readingGameView" style="display:none;"></div>
   </main>
@@ -762,9 +904,11 @@
 /* =========================================================
    CONFIGURA AQUÍ tu Web App de Google Apps Script
    ========================================================= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-BV5regJLnIC2OQ7wqVmyhsDdtI21RG5Tk1vx9zUQbWdL7pBWXeuB76_drLMbcVRx/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOLtNRfHtcGKfxEVVJXRmqPWm_lqLeH5uhR7cJadwZrSPaPboUDWV0dMU8FKmzGGbN/exec";
+const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbydeU3pJJlzCg1BKKanGP_0fvhJG3Q61LyEnjfKCQWzPqPl7xbSAMZqspnylxx5p-OI/exec";
 
 const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
+const JA_LEVELS = ['hiragana','katakana','N5','N4','N3','N2','N1'];
 // El estándar HSK 3.0 usa 7 bandas: niveles 1 a 6 individuales,
 // y 7, 8 y 9 agrupados en un solo bloque "HSK 7-9" (comparten el mismo
 // vocabulario avanzado, ~5,600 palabras adicionales).
@@ -774,6 +918,7 @@ let LESSONS = {};       // { "1": [ {id, titulo, categoria, palabras:[...]}, ...
 let LECTURAS = {};      // { "1": [ {id, titulo, tipo, oraciones:[{zh,pinyin,es}]}, ... ] }
 let PROGRESS = {};      // { "leccion_id": {completado, mejor_puntaje, fecha} }
 let CURRENT_LEVEL = 1;
+let APP_LANG = localStorage.getItem('app_lang') || 'zh'; // 'zh' | 'ja'
 let CURRENT_LANG = localStorage.getItem('hsk_lang') || 'es';
 let CURRENT_SUBVIEW = 'vocab'; // 'vocab' | 'lessons' | 'readings'
 let ACTIVE_LESSON = null;
@@ -876,17 +1021,40 @@ function rowToEntry(row){
 /* ---------------------------------------------------------
    Sidebar: construir botones de nivel
    --------------------------------------------------------- */
+function getActiveLevels(){
+  return APP_LANG === 'ja' ? JA_LEVELS : HSK_LEVELS;
+}
+
+function getLevelLabel(level){
+  if (APP_LANG === 'ja'){
+    if (level === 'hiragana') return 'Hiragana';
+    if (level === 'katakana') return 'Katakana';
+    return `JLPT ${level}`;
+  }
+  return `HSK ${level}`;
+}
+
+function getSealLabel(level){
+  if (APP_LANG === 'ja'){
+    if (level === 'hiragana') return 'あ';
+    if (level === 'katakana') return 'ア';
+    return level; // N5..N1
+  }
+  return level;
+}
+
 function buildSidebar(){
   const list = document.getElementById('levelList');
   list.innerHTML = '';
-  HSK_LEVELS.forEach(level => {
+  getActiveLevels().forEach(level => {
     const li = document.createElement('li');
     const btn = document.createElement('button');
     btn.className = 'level-btn' + (String(level) === String(CURRENT_LEVEL) ? ' active' : '');
     btn.dataset.level = level;
+    const sealLabel = getSealLabel(level);
     btn.innerHTML = `
-      <span class="seal-tag" style="${String(level).length > 1 ? 'font-size:.72rem' : ''}">${level}</span>
-      <span>HSK ${level}</span>
+      <span class="seal-tag" style="${String(sealLabel).length > 1 ? 'font-size:.68rem' : ''}">${sealLabel}</span>
+      <span>${getLevelLabel(level)}</span>
       <span class="count" data-count="${level}"></span>
     `;
     btn.addEventListener('click', () => selectLevel(level));
@@ -926,10 +1094,12 @@ function updateSubNav(){
   document.getElementById('vocabView').style.display = CURRENT_SUBVIEW === 'vocab' ? '' : 'none';
   document.getElementById('lessonsView').style.display = CURRENT_SUBVIEW === 'lessons' ? '' : 'none';
   document.getElementById('readingsView').style.display = CURRENT_SUBVIEW === 'readings' ? '' : 'none';
+  document.getElementById('writingView').style.display = CURRENT_SUBVIEW === 'writing' ? '' : 'none';
   document.getElementById('lessonGameView').style.display = 'none';
   document.getElementById('readingGameView').style.display = 'none';
   if (CURRENT_SUBVIEW === 'lessons') renderLessonsGrid();
   if (CURRENT_SUBVIEW === 'readings') renderReadingsGrid();
+  if (CURRENT_SUBVIEW === 'writing') renderWritingView();
 }
 
 document.querySelectorAll('.subnav-btn').forEach(btn => {
@@ -950,7 +1120,7 @@ function renderLessonsGrid(){
     document.getElementById('lessonsView').innerHTML = `
       <div class="lessons-empty">
         Todavía no hay lecciones armadas para HSK ${CURRENT_LEVEL}.
-        ${CURRENT_LEVEL == 1 ? 'Revisa que la pestaña "Lecciones_HSK1" esté en tu hoja de cálculo.' : 'Por ahora solo HSK 1 tiene lecciones — vamos agregando más niveles poco a poco.'}
+        ${(APP_LANG === 'zh' && CURRENT_LEVEL == 1) ? 'Revisa que la pestaña "Lecciones_HSK1" esté en tu hoja de cálculo.' : (APP_LANG === 'ja' ? 'Las lecciones para japonés todavía no están armadas — por ahora usa Vocabulario y Escritura.' : 'Por ahora solo HSK 1 tiene lecciones — vamos agregando más niveles poco a poco.')}
       </div>`;
     return;
   }
@@ -989,7 +1159,7 @@ function renderReadingsGrid(){
     view.innerHTML = `
       <div class="lessons-empty">
         Todavía no hay lecturas para HSK ${CURRENT_LEVEL}.
-        ${CURRENT_LEVEL == 1 ? 'Revisa que la pestaña "Lecturas_HSK1" esté en tu hoja de cálculo.' : 'Por ahora solo HSK 1 tiene lecturas.'}
+        ${(APP_LANG === 'zh' && CURRENT_LEVEL == 1) ? 'Revisa que la pestaña "Lecturas_HSK1" esté en tu hoja de cálculo.' : (APP_LANG === 'ja' ? 'Las lecturas para japonés todavía no están armadas — por ahora usa Vocabulario y Escritura.' : 'Por ahora solo HSK 1 tiene lecturas.')}
       </div>`;
     return;
   }
@@ -1068,6 +1238,206 @@ function renderReadingView(reading){
     sentencesContainer.querySelectorAll('.sentence-block').forEach(b => b.classList.remove('revealed'));
   });
 }
+
+/* ---------------------------------------------------------
+   Escritura: practicar trazos con mouse/touch (HanziWriter)
+   --------------------------------------------------------- */
+let WRITER_INSTANCE = null;
+let WRITING_CHARS = [];
+let WRITING_ACTIVE_CHAR = null;
+
+function getUniqueCharsForLevel(level){
+  const words = RAW_DATA[level] || [];
+  const seen = new Set();
+  const chars = [];
+  const isKanaLevel = (level === 'hiragana' || level === 'katakana');
+  const pattern = isKanaLevel ? /[\u3040-\u30ff]/ : /[\u4e00-\u9fff]/;
+  words.forEach(w => {
+    for (const ch of w.character){
+      if (pattern.test(ch) && !seen.has(ch)){
+        seen.add(ch);
+        chars.push(ch);
+      }
+    }
+  });
+  return chars;
+}
+
+function renderWritingView(){
+  WRITING_CHARS = getUniqueCharsForLevel(CURRENT_LEVEL);
+  const chipList = document.getElementById('charChipList');
+
+  if (!WRITING_CHARS.length){
+    chipList.innerHTML = '';
+    document.getElementById('writerInfo').textContent = 'No hay caracteres cargados todavía para este nivel.';
+    return;
+  }
+
+  chipList.innerHTML = WRITING_CHARS.map(ch => `
+    <div class="char-chip" data-char="${ch}">${ch}</div>
+  `).join('');
+
+  chipList.querySelectorAll('.char-chip').forEach(chip => {
+    chip.addEventListener('click', () => selectWritingChar(chip.dataset.char));
+  });
+
+  if (!WRITING_ACTIVE_CHAR || !WRITING_CHARS.includes(WRITING_ACTIVE_CHAR)){
+    selectWritingChar(WRITING_CHARS[0]);
+  } else {
+    selectWritingChar(WRITING_ACTIVE_CHAR);
+  }
+}
+
+function selectWritingChar(char){
+  WRITING_ACTIVE_CHAR = char;
+  document.querySelectorAll('.char-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.char === char);
+  });
+
+  const target = document.getElementById('writerTarget');
+  const info = document.getElementById('writerInfo');
+  target.innerHTML = '';
+  info.classList.remove('success');
+
+  const isKanaLevel = (CURRENT_LEVEL === 'hiragana' || CURRENT_LEVEL === 'katakana');
+  if (isKanaLevel){
+    renderKanaTraceCanvas(char, target, info);
+  } else {
+    renderHanziQuiz(char, target, info);
+  }
+}
+
+/**
+ * Trazo libre guiado para kana: dibuja el carácter como referencia tenue
+ * de fondo y deja que el usuario lo repase encima con mouse/touch.
+ * A diferencia de los kanji, aquí NO hay calificación automática — la
+ * librería que usamos para eso solo tiene datos de trazos para hanzi/kanji,
+ * no para hiragana/katakana.
+ */
+function renderKanaTraceCanvas(char, target, info){
+  const size = Math.min(320, target.parentElement.clientWidth - 40, 320);
+  target.innerHTML = `<canvas id="kanaCanvas" width="${size}" height="${size}" style="touch-action:none; display:block;"></canvas>`;
+  const canvas = document.getElementById('kanaCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function drawGuide(){
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = 'rgba(140, 131, 113, 0.28)';
+    ctx.font = `${size * 0.7}px "Noto Sans SC", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(char, size / 2, size / 2 + size * 0.03);
+  }
+  drawGuide();
+
+  ctx.strokeStyle = '#AC3A2C';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  let drawing = false;
+  function pos(e){
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+  canvas.addEventListener('pointerdown', (e) => {
+    drawing = true;
+    const p = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!drawing) return;
+    const p = pos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(evt => {
+    canvas.addEventListener(evt, () => { drawing = false; });
+  });
+
+  info.innerHTML = `Repasa <strong>"${char}"</strong> con el mouse o el dedo sobre la guía. <span style="color:var(--muted)">(Aquí no hay calificación automática — es práctica de trazo libre.)</span>`;
+
+  // botón "Ver trazos" no aplica en modo kana; lo reusamos como "limpiar"
+  document.getElementById('showStrokesBtn').onclick = () => drawGuide();
+  document.getElementById('retryQuizBtn').onclick = () => selectWritingChar(char);
+}
+
+/**
+ * Modo kanji/hanzi (HSK y JLPT): usa HanziWriter, que sí valida cada
+ * trazo contra la forma correcta.
+ * Nota para japonés: muchos kanji comparten forma con su equivalente en
+ * chino simplificado, pero algunos difieren (shinjitai) — en esos casos
+ * el trazo de referencia puede no ser exacto.
+ */
+function renderHanziQuiz(char, target, info){
+  info.textContent = 'Cargando carácter...';
+
+  if (typeof HanziWriter === 'undefined'){
+    info.textContent = 'No se pudo cargar la librería de escritura (revisa tu conexión) — intenta recargar la página.';
+    return;
+  }
+
+  const size = Math.min(320, target.parentElement.clientWidth - 40, 320);
+
+  try{
+    WRITER_INSTANCE = HanziWriter.create('writerTarget', char, {
+      width: size,
+      height: size,
+      padding: 10,
+      showOutline: true,
+      strokeAnimationSpeed: 1,
+      delayBetweenStrokes: 200,
+      highlightOnComplete: true
+    });
+
+    info.textContent = 'Dibuja cada trazo con el mouse o el dedo, en orden.';
+    let strokesDone = 0;
+
+    WRITER_INSTANCE.quiz({
+      onCorrectStroke: () => { strokesDone++; },
+      onComplete: (summary) => {
+        const totalStrokes = strokesDone || 1;
+        const precision = Math.round((totalStrokes / (totalStrokes + summary.totalMistakes)) * 100);
+        const grade = precision >= 95 ? 'A' : precision >= 85 ? 'B' : precision >= 70 ? 'C' : 'D';
+
+        info.innerHTML = `¡Completaste "${char}"! <strong>${precision}% de precisión</strong> (calificación ${grade}) — ${summary.totalMistakes} error${summary.totalMistakes === 1 ? '' : 'es'} en ${totalStrokes} trazo${totalStrokes === 1 ? '' : 's'}.`;
+        info.classList.add('success');
+
+        guardarEscrituraRemota(char, precision, grade, summary.totalMistakes, totalStrokes);
+      }
+    });
+
+    document.getElementById('showStrokesBtn').onclick = () => WRITER_INSTANCE.animateCharacter();
+    document.getElementById('retryQuizBtn').onclick = () => selectWritingChar(char);
+  } catch(err){
+    info.textContent = `No se encontraron datos de trazos para "${char}".`;
+  }
+}
+
+async function guardarEscrituraRemota(caracter, precision, grade, errores, trazos){
+  try{
+    const url = APP_LANG === 'ja' ? SCRIPT_URL_JA : SCRIPT_URL;
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        accion: 'guardar_escritura',
+        caracter, precision, grade, errores, trazos,
+        nivel: CURRENT_LEVEL
+      })
+    });
+  } catch(err){
+    console.warn('No se pudo guardar el resultado de escritura en la hoja:', err);
+  }
+}
+
+document.getElementById('randomCharBtn').addEventListener('click', () => {
+  if (!WRITING_CHARS.length) return;
+  const other = WRITING_CHARS.filter(c => c !== WRITING_ACTIVE_CHAR);
+  const pick = other.length ? other[Math.floor(Math.random() * other.length)] : WRITING_CHARS[0];
+  selectWritingChar(pick);
+});
 
 /* ---------------------------------------------------------
    Juego de arrastrar y emparejar
@@ -1282,8 +1652,10 @@ const SAMPLE_HANZI = {1:'一',2:'二',3:'三',4:'四',5:'五',6:'六','7-9':'高
 
 function renderLevel(){
   const words = RAW_DATA[CURRENT_LEVEL] || [];
-  document.getElementById('bigHanzi').textContent = SAMPLE_HANZI[CURRENT_LEVEL] || CURRENT_LEVEL;
-  document.getElementById('levelTitle').textContent = `HSK ${CURRENT_LEVEL}`;
+  document.getElementById('bigHanzi').textContent = APP_LANG === 'ja'
+    ? getSealLabel(CURRENT_LEVEL)
+    : (SAMPLE_HANZI[CURRENT_LEVEL] || CURRENT_LEVEL);
+  document.getElementById('levelTitle').textContent = getLevelLabel(CURRENT_LEVEL);
   document.getElementById('levelSubtitle').textContent =
     words.length ? `${words.length} palabras en este nivel` : 'Sin datos para este nivel todavía';
 
@@ -1334,7 +1706,7 @@ function renderTable(words){
         <tr>
           <th>#</th>
           <th>Carácter</th>
-          <th>Pinyin</th>
+          <th>${APP_LANG === 'ja' ? 'Romaji' : 'Pinyin'}</th>
           <th>Traducción</th>
         </tr>
       </thead>
@@ -1353,16 +1725,23 @@ function escapeHtml(str){
    --------------------------------------------------------- */
 async function loadData(){
   try{
-    const res = await fetch(SCRIPT_URL, { method: 'GET' });
+    const url = APP_LANG === 'ja' ? SCRIPT_URL_JA : SCRIPT_URL;
+    const res = await fetch(url, { method: 'GET' });
     if (!res.ok) throw new Error(`El script respondió con estado ${res.status}`);
     const json = await res.json();
 
-    // Compatibilidad: si el script todavía es la versión vieja (sin
-    // envoltura vocabulario/lecciones), lo tratamos como solo vocabulario.
-    const vocabJson = json && json.vocabulario ? json.vocabulario : json;
-    RAW_DATA = normalizeData(vocabJson);
-    LESSONS = (json && json.lecciones) ? json.lecciones : {};
-    LECTURAS = (json && json.lecturas) ? json.lecturas : {};
+    if (APP_LANG === 'ja'){
+      RAW_DATA = normalizeJapaneseData(json && json.vocabulario ? json.vocabulario : {});
+      LESSONS = {};
+      LECTURAS = {};
+    } else {
+      // Compatibilidad: si el script todavía es la versión vieja (sin
+      // envoltura vocabulario/lecciones), lo tratamos como solo vocabulario.
+      const vocabJson = json && json.vocabulario ? json.vocabulario : json;
+      RAW_DATA = normalizeData(vocabJson);
+      LESSONS = (json && json.lecciones) ? json.lecciones : {};
+      LECTURAS = (json && json.lecturas) ? json.lecturas : {};
+    }
     PROGRESS = (json && json.progreso) ? json.progreso : {};
 
     updateCounts();
@@ -1371,6 +1750,27 @@ async function loadData(){
     LOAD_ERROR = err;
     showLoadError(err);
   }
+}
+
+/**
+ * Convierte la respuesta del script de japonés (hiragana/katakana con
+ * caracter+romaji, y JLPT_N5...N1 con caracter+romaji+traduccion) a la
+ * misma forma interna que usa el resto de la página: {character, pinyin,
+ * meaning, meaningEs, level}
+ */
+function normalizeJapaneseData(vocab){
+  const result = {};
+  JA_LEVELS.forEach(level => {
+    const rows = vocab[level] || [];
+    result[level] = rows.map(r => ({
+      character: r.caracter || '',
+      pinyin: r.romaji || '',
+      meaning: r.traduccion || '',
+      meaningEs: r.traduccion_es || '',
+      level
+    }));
+  });
+  return result;
 }
 
 function showLoadError(err){
@@ -1423,8 +1823,38 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 });
 
 /* ---------------------------------------------------------
+   Selector de idioma: 中文 / 日本語
+   --------------------------------------------------------- */
+document.querySelectorAll('.lang-switch-btn').forEach(btn => {
+  if (btn.dataset.appLang === APP_LANG) btn.classList.add('active');
+  else btn.classList.remove('active');
+  btn.addEventListener('click', () => {
+    if (btn.dataset.appLang === APP_LANG) return; // ya está en ese idioma
+    APP_LANG = btn.dataset.appLang;
+    localStorage.setItem('app_lang', APP_LANG);
+    document.querySelectorAll('.lang-switch-btn').forEach(b => b.classList.toggle('active', b === btn));
+
+    const brand = document.getElementById('brandSidebar');
+    if (APP_LANG === 'ja'){
+      brand.innerHTML = '日本語<small>Hiragana, Katakana y JLPT</small>';
+    } else {
+      brand.innerHTML = '學中文<small>Vocabulario HSK 3.0</small>';
+    }
+
+    CURRENT_LEVEL = getActiveLevels()[0];
+    CURRENT_SUBVIEW = 'vocab';
+    ACTIVE_LESSON = null;
+    ACTIVE_READING = null;
+    buildSidebar();
+    updateSubNav();
+    loadData();
+  });
+});
+
+/* ---------------------------------------------------------
    Init
    --------------------------------------------------------- */
+CURRENT_LEVEL = getActiveLevels()[0];
 buildSidebar();
 loadData();
 </script>
