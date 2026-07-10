@@ -242,6 +242,251 @@
     white-space:nowrap;
   }
 
+  .lang-toggle{
+    display:flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .lang-btn{
+    border:none;
+    background: var(--card);
+    color: var(--muted);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:.76rem;
+    letter-spacing:.04em;
+    padding: 8px 14px;
+    cursor:pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .lang-btn:not(:last-child){ border-right: 1px solid var(--line); }
+  .lang-btn.active{
+    background: var(--seal);
+    color: #F7EFDD;
+  }
+  .lang-btn:hover:not(.active){
+    background: var(--paper-dim);
+    color: var(--ink);
+  }
+
+  /* ---------- Sub-nav (Vocabulario / Lecciones) ---------- */
+  .subnav{
+    display:flex;
+    gap:6px;
+    margin: 22px 0 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .subnav-btn{
+    border:none;
+    background:transparent;
+    padding: 10px 4px;
+    margin-right: 22px;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:.88rem;
+    color: var(--muted);
+    cursor:pointer;
+    position:relative;
+    top:1px;
+    border-bottom: 2px solid transparent;
+  }
+  .subnav-btn.active{
+    color: var(--seal);
+    border-bottom-color: var(--seal);
+  }
+
+  /* ---------- Lessons grid ---------- */
+  .lessons-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:14px;
+    margin-top: 20px;
+  }
+  .lesson-card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor:pointer;
+    transition: border-color .15s ease, transform .15s ease;
+    position:relative;
+  }
+  .lesson-card:hover{
+    border-color: var(--seal);
+    transform: translateY(-2px);
+  }
+  .lesson-card .lesson-num{
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:.78rem;
+    color: var(--muted);
+  }
+  .lesson-card h3{
+    font-size:.98rem;
+    margin: 6px 0 8px;
+    color: var(--ink);
+    line-height:1.3;
+  }
+  .lesson-card .lesson-meta{
+    font-size:.76rem;
+    color: var(--muted);
+  }
+  .lesson-card .lesson-check{
+    position:absolute;
+    top:14px; right:14px;
+    width:22px; height:22px;
+    border-radius:50%;
+    background: var(--jade);
+    color:#fff;
+    font-size:.72rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lessons-empty{
+    padding: 50px 20px;
+    text-align:center;
+    color: var(--muted);
+  }
+
+  /* ---------- Matching game ---------- */
+  .game-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .game-back{
+    border:1px solid var(--line);
+    background: var(--card);
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    font-family:'Inter', sans-serif;
+    font-size:.84rem;
+    cursor:pointer;
+    color: var(--ink-soft);
+  }
+  .game-progress{
+    font-size:.8rem;
+    color: var(--muted);
+  }
+  .match-board{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items:start;
+  }
+  .match-col-title{
+    font-size:.72rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color: var(--muted);
+    margin-bottom:10px;
+  }
+  .match-slot{
+    min-height:56px;
+    border: 1.5px dashed var(--line);
+    border-radius: var(--radius);
+    background: var(--card);
+    display:flex;
+    align-items:center;
+    padding: 8px 12px;
+    margin-bottom:10px;
+    gap: 10px;
+    position:relative;
+  }
+  .match-slot .slot-hanzi{
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:1.3rem;
+    flex-shrink:0;
+    width: 46px;
+  }
+  .match-slot.correct{
+    border-style:solid;
+    border-color: var(--jade);
+    background: rgba(63,102,86,0.07);
+  }
+  .match-slot .slot-drop-target{
+    flex:1;
+    min-height:38px;
+    border-radius: 3px;
+    display:flex;
+    align-items:center;
+  }
+  .match-slot.drag-over .slot-drop-target{
+    background: rgba(172,58,44,0.08);
+    outline: 1.5px dashed var(--seal);
+  }
+  .match-card{
+    background: var(--paper-dim);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    font-size:.86rem;
+    color: var(--ink-soft);
+    cursor: grab;
+    user-select:none;
+    touch-action: none;
+    line-height:1.3;
+  }
+  .match-card.placed{
+    cursor:default;
+    background:transparent;
+    border-color:transparent;
+    color: var(--ink);
+  }
+  .match-card.dragging-ghost{
+    position:fixed;
+    z-index:200;
+    pointer-events:none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+    opacity:0.95;
+  }
+  .match-pool{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .shake{ animation: shake .3s ease; }
+  @keyframes shake{
+    25%{ transform: translateX(-6px); }
+    75%{ transform: translateX(6px); }
+  }
+  .lesson-complete{
+    text-align:center;
+    padding: 50px 20px;
+  }
+  .lesson-complete .big-check{
+    font-size:2.6rem;
+    color: var(--jade);
+    margin-bottom:10px;
+  }
+  .lesson-complete h2{
+    font-family:'Noto Serif SC', serif;
+    margin-bottom:6px;
+  }
+  .lesson-complete p{
+    color: var(--muted);
+    margin-bottom:20px;
+  }
+  .lesson-complete button{
+    border:1px solid var(--line);
+    background: var(--seal);
+    color:#fff;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    cursor:pointer;
+  }
+
+  @media (max-width: 640px){
+    .match-board{ grid-template-columns: 1fr; gap:20px; }
+  }
+
   /* ---------- Table ---------- */
   .table-wrap{
     background: var(--card);
@@ -398,19 +643,36 @@
       </div>
     </div>
 
-    <div class="toolbar">
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Buscar carácter, pinyin o traducción...">
-      </div>
-      <div class="status-pill" id="statusPill">—</div>
+    <div class="subnav" id="subNav">
+      <button class="subnav-btn active" data-subview="vocab">Vocabulario</button>
+      <button class="subnav-btn" data-subview="lessons">Lecciones</button>
     </div>
 
-    <div class="table-wrap" id="tableWrap">
-      <div class="loading">
-        <div class="spinner"></div>
-        Cargando datos desde tu hoja de cálculo...
+    <div id="vocabView">
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Buscar carácter, pinyin o traducción...">
+        </div>
+        <div class="lang-toggle" id="langToggle">
+          <button class="lang-btn active" data-lang="es">ES</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <div class="status-pill" id="statusPill">—</div>
+      </div>
+
+      <div class="table-wrap" id="tableWrap">
+        <div class="loading">
+          <div class="spinner"></div>
+          Cargando datos desde tu hoja de cálculo...
+        </div>
       </div>
     </div>
+
+    <div id="lessonsView" style="display:none;">
+      <div class="lessons-grid" id="lessonsGrid"></div>
+    </div>
+
+    <div id="lessonGameView" style="display:none;"></div>
   </main>
 </div>
 
@@ -418,7 +680,7 @@
 /* =========================================================
    CONFIGURA AQUÍ tu Web App de Google Apps Script
    ========================================================= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOLtNRfHtcGKfxEVVJXRmqPWm_lqLeH5uhR7cJadwZrSPaPboUDWV0dMU8FKmzGGbN/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwiL2ZZECKtpO_mrKkyi87W2IkPt0Por8ZmYPG4ZBpzjH453cdinbBIDTOSgp_xcks/exec";
 
 const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
 // El estándar HSK 3.0 usa 7 bandas: niveles 1 a 6 individuales,
@@ -426,7 +688,12 @@ const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
 // vocabulario avanzado, ~5,600 palabras adicionales).
 
 let RAW_DATA = {};      // { "1": [ {hanzi, pinyin, meaning}, ... ], "2": [...], "7-9": [...] }
+let LESSONS = {};       // { "1": [ {id, titulo, categoria, palabras:[...]}, ... ] }
+let PROGRESS = {};      // { "leccion_id": {completado, mejor_puntaje, fecha} }
 let CURRENT_LEVEL = 1;
+let CURRENT_LANG = localStorage.getItem('hsk_lang') || 'es';
+let CURRENT_SUBVIEW = 'vocab'; // 'vocab' | 'lessons'
+let ACTIVE_LESSON = null;
 let LOAD_ERROR = null;
 
 /* ---------------------------------------------------------
@@ -437,6 +704,7 @@ const FIELD_PATTERNS = {
   character: /^(car[aá]cter|hanzi|chinese|palabra|word|字|汉字|简体)$/i,
   pinyin:    /^(pinyin|拼音)$/i,
   meaning:   /^(traducci[oó]n|significado|meaning|espa[nñ]ol|english|ingl[eé]s|意思|翻译)$/i,
+  meaningEs: /^(traducci[oó]n_?es|traduccion_?espanol|traduccion_?spa|es|spanish)$/i,
   level:     /^(nivel|level|hsk|hsk_?level|等级)$/i
 };
 
@@ -509,12 +777,14 @@ function rowToEntry(row){
   const character = findField(row, 'character');
   const pinyin = findField(row, 'pinyin');
   const meaning = findField(row, 'meaning');
+  const meaningEs = findField(row, 'meaningEs');
   const level = normalizeLevelValue(findField(row, 'level'));
   if (!character && !pinyin && !meaning) return null;
   return {
     character: character ? String(character).trim() : '',
     pinyin: pinyin ? String(pinyin).trim() : '',
     meaning: meaning ? String(meaning).trim() : '',
+    meaningEs: meaningEs ? String(meaningEs).trim() : '',
     level
   };
 }
@@ -556,8 +826,272 @@ function selectLevel(level){
     b.classList.toggle('active', String(b.dataset.level) === String(level));
   });
   document.getElementById('searchInput').value = '';
+  CURRENT_SUBVIEW = 'vocab';
+  updateSubNav();
   renderLevel();
   closeSidebarMobile();
+}
+
+/* ---------------------------------------------------------
+   Sub-nav: Vocabulario / Lecciones
+   --------------------------------------------------------- */
+function updateSubNav(){
+  document.querySelectorAll('.subnav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.subview === CURRENT_SUBVIEW);
+  });
+  document.getElementById('vocabView').style.display = CURRENT_SUBVIEW === 'vocab' ? '' : 'none';
+  document.getElementById('lessonsView').style.display = CURRENT_SUBVIEW === 'lessons' ? '' : 'none';
+  document.getElementById('lessonGameView').style.display = 'none';
+  if (CURRENT_SUBVIEW === 'lessons') renderLessonsGrid();
+}
+
+document.querySelectorAll('.subnav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    CURRENT_SUBVIEW = btn.dataset.subview;
+    ACTIVE_LESSON = null;
+    updateSubNav();
+  });
+});
+
+function renderLessonsGrid(){
+  const grid = document.getElementById('lessonsGrid');
+  const lessons = LESSONS[CURRENT_LEVEL];
+
+  if (!lessons || !lessons.length){
+    grid.innerHTML = '';
+    document.getElementById('lessonsView').innerHTML = `
+      <div class="lessons-empty">
+        Todavía no hay lecciones armadas para HSK ${CURRENT_LEVEL}.
+        ${CURRENT_LEVEL == 1 ? 'Revisa que la pestaña "Lecciones_HSK1" esté en tu hoja de cálculo.' : 'Por ahora solo HSK 1 tiene lecciones — vamos agregando más niveles poco a poco.'}
+      </div>`;
+    return;
+  }
+
+  document.getElementById('lessonsView').innerHTML = `<div class="lessons-grid" id="lessonsGrid"></div>`;
+  const freshGrid = document.getElementById('lessonsGrid');
+
+  freshGrid.innerHTML = lessons.map(lesson => {
+    const prog = PROGRESS[lesson.id];
+    const done = prog && prog.completado;
+    return `
+      <div class="lesson-card" data-lesson-id="${lesson.id}">
+        ${done ? '<div class="lesson-check">✓</div>' : ''}
+        <div class="lesson-num">LECCIÓN ${lesson.id}</div>
+        <h3>${escapeHtml(lesson.titulo)}</h3>
+        <div class="lesson-meta">${lesson.palabras.length} palabras${prog && prog.mejor_puntaje ? ` · mejor: ${prog.mejor_puntaje}/${lesson.palabras.length}` : ''}</div>
+      </div>
+    `;
+  }).join('');
+
+  freshGrid.querySelectorAll('.lesson-card').forEach(card => {
+    card.addEventListener('click', () => openLesson(card.dataset.lessonId));
+  });
+}
+
+/* ---------------------------------------------------------
+   Juego de arrastrar y emparejar
+   --------------------------------------------------------- */
+function shuffle(arr){
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function openLesson(lessonId){
+  const lessons = LESSONS[CURRENT_LEVEL] || [];
+  const lesson = lessons.find(l => String(l.id) === String(lessonId));
+  if (!lesson) return;
+  ACTIVE_LESSON = lesson;
+
+  document.getElementById('lessonsView').style.display = 'none';
+  document.getElementById('lessonGameView').style.display = '';
+  renderMatchingGame(lesson);
+}
+
+function renderMatchingGame(lesson){
+  const container = document.getElementById('lessonGameView');
+  const palabras = lesson.palabras;
+  const shuffledCards = shuffle(palabras.map((w, i) => ({ ...w, originalIndex: i })));
+
+  container.innerHTML = `
+    <div class="game-header">
+      <button class="game-back" id="gameBackBtn">← Volver a lecciones</button>
+      <div class="game-progress" id="gameProgress">0 de ${palabras.length} emparejadas</div>
+    </div>
+    <h2 style="font-family:'Noto Serif SC',serif;margin-bottom:4px;">${escapeHtml(lesson.titulo)}</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:20px;">Arrastra cada tarjeta con el pinyin y significado hacia su carácter correspondiente.</p>
+    <div class="match-board">
+      <div>
+        <div class="match-col-title">Caracteres</div>
+        <div id="slotsContainer"></div>
+      </div>
+      <div>
+        <div class="match-col-title">Pinyin y significado</div>
+        <div class="match-pool" id="poolContainer"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('gameBackBtn').addEventListener('click', () => {
+    ACTIVE_LESSON = null;
+    document.getElementById('lessonGameView').style.display = 'none';
+    document.getElementById('lessonsView').style.display = '';
+    renderLessonsGrid();
+  });
+
+  const slotsContainer = document.getElementById('slotsContainer');
+  slotsContainer.innerHTML = palabras.map((w, i) => `
+    <div class="match-slot" data-index="${i}">
+      <div class="slot-hanzi">${escapeHtml(w.caracter)}</div>
+      <div class="slot-drop-target" data-index="${i}"></div>
+    </div>
+  `).join('');
+
+  const poolContainer = document.getElementById('poolContainer');
+  poolContainer.innerHTML = shuffledCards.map(w => `
+    <div class="match-card" data-index="${w.originalIndex}">
+      <strong>${escapeHtml(w.pinyin)}</strong> — ${escapeHtml(w.significado)}
+    </div>
+  `).join('');
+
+  let matchedCount = 0;
+  let attempts = 0;
+  const total = palabras.length;
+
+  setupDragAndDrop(poolContainer, slotsContainer, (cardIndex, slotIndex, cardEl, slotEl) => {
+    attempts++;
+    if (cardIndex === slotIndex){
+      const dropTarget = slotEl.querySelector('.slot-drop-target');
+      cardEl.classList.add('placed');
+      cardEl.style.cursor = 'default';
+      cardEl.setAttribute('draggable', 'false');
+      dropTarget.appendChild(cardEl);
+      slotEl.classList.add('correct');
+      matchedCount++;
+      document.getElementById('gameProgress').textContent = `${matchedCount} de ${total} emparejadas`;
+
+      if (matchedCount === total){
+        const puntaje = Math.max(0, total - Math.max(0, attempts - total));
+        setTimeout(() => showLessonComplete(lesson, puntaje, total), 350);
+      }
+      return true; // aceptar
+    } else {
+      slotEl.classList.add('shake');
+      setTimeout(() => slotEl.classList.remove('shake'), 300);
+      return false; // rechazar, la tarjeta regresa
+    }
+  });
+}
+
+function showLessonComplete(lesson, puntaje, total){
+  const container = document.getElementById('lessonGameView');
+  container.innerHTML = `
+    <div class="lesson-complete">
+      <div class="big-check">✓</div>
+      <h2>¡Lección completada!</h2>
+      <p>${escapeHtml(lesson.titulo)} — ${puntaje} de ${total} puntos</p>
+      <button id="backToLessonsBtn">Volver a lecciones</button>
+    </div>
+  `;
+  document.getElementById('backToLessonsBtn').addEventListener('click', () => {
+    ACTIVE_LESSON = null;
+    container.style.display = 'none';
+    document.getElementById('lessonsView').style.display = '';
+    renderLessonsGrid();
+  });
+
+  PROGRESS[lesson.id] = {
+    completado: true,
+    mejor_puntaje: Math.max(puntaje, (PROGRESS[lesson.id] && PROGRESS[lesson.id].mejor_puntaje) || 0),
+    fecha: new Date().toISOString()
+  };
+  guardarProgresoRemoto(lesson.id, true, puntaje);
+}
+
+async function guardarProgresoRemoto(leccionId, completado, puntaje){
+  try{
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita el preflight de CORS
+      body: JSON.stringify({ accion: 'guardar_progreso', leccion_id: leccionId, completado, puntaje })
+    });
+  } catch(err){
+    console.warn('No se pudo guardar el progreso en la hoja:', err);
+  }
+}
+
+/**
+ * Drag & drop con Pointer Events (funciona con mouse y con touch por igual).
+ * onDrop(cardIndex, slotIndex, cardEl, slotEl) debe devolver true/false.
+ */
+function setupDragAndDrop(poolContainer, slotsContainer, onDrop){
+  let dragEl = null;
+  let ghost = null;
+  let originParent = null;
+  let offsetX = 0, offsetY = 0;
+
+  function pointerDown(e){
+    const card = e.target.closest('.match-card');
+    if (!card || card.classList.contains('placed')) return;
+    e.preventDefault();
+    dragEl = card;
+    originParent = card.parentElement;
+
+    const rect = card.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    ghost = card.cloneNode(true);
+    ghost.classList.add('dragging-ghost');
+    ghost.style.width = rect.width + 'px';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.top = rect.top + 'px';
+    document.body.appendChild(ghost);
+    card.style.opacity = '0.3';
+
+    document.addEventListener('pointermove', pointerMove);
+    document.addEventListener('pointerup', pointerUp);
+  }
+
+  function pointerMove(e){
+    if (!ghost) return;
+    ghost.style.left = (e.clientX - offsetX) + 'px';
+    ghost.style.top = (e.clientY - offsetY) + 'px';
+  }
+
+  function pointerUp(e){
+    document.removeEventListener('pointermove', pointerMove);
+    document.removeEventListener('pointerup', pointerUp);
+    if (!ghost) return;
+
+    ghost.style.display = 'none';
+    const dropEl = document.elementFromPoint(e.clientX, e.clientY);
+    ghost.remove();
+    ghost = null;
+
+    if (dragEl) dragEl.style.opacity = '';
+
+    const slotTarget = dropEl ? dropEl.closest('.match-slot') : null;
+
+    if (slotTarget && dragEl){
+      const cardIndex = Number(dragEl.dataset.index);
+      const slotIndex = Number(slotTarget.dataset.index);
+      const accepted = onDrop(cardIndex, slotIndex, dragEl, slotTarget);
+      if (!accepted){
+        originParent.appendChild(dragEl);
+      }
+    }
+    dragEl = null;
+  }
+
+  poolContainer.addEventListener('pointerdown', pointerDown);
+  slotsContainer.addEventListener('pointerdown', (e) => {
+    // permite re-arrastrar una tarjeta ya colocada mal (por si acaso)
+    pointerDown(e);
+  });
 }
 
 /* ---------------------------------------------------------
@@ -575,6 +1109,12 @@ function renderLevel(){
   renderTable(words);
 }
 
+function getMeaning(w){
+  if (CURRENT_LANG === 'es' && w.meaningEs) return w.meaningEs;
+  if (CURRENT_LANG === 'es' && !w.meaningEs) return w.meaning; // aún no traducido, cae a inglés
+  return w.meaning;
+}
+
 function renderTable(words){
   const wrap = document.getElementById('tableWrap');
   const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -583,7 +1123,8 @@ function renderTable(words){
     ? words.filter(w =>
         w.character.toLowerCase().includes(query) ||
         w.pinyin.toLowerCase().includes(query) ||
-        w.meaning.toLowerCase().includes(query))
+        w.meaning.toLowerCase().includes(query) ||
+        (w.meaningEs && w.meaningEs.toLowerCase().includes(query)))
     : words;
 
   document.getElementById('statusPill').textContent =
@@ -594,14 +1135,17 @@ function renderTable(words){
     return;
   }
 
-  const rows = filtered.map((w, i) => `
+  const rows = filtered.map((w, i) => {
+    const pendingEs = CURRENT_LANG === 'es' && !w.meaningEs;
+    return `
     <tr>
       <td class="idx">${i + 1}</td>
       <td class="hanzi">${escapeHtml(w.character)}</td>
       <td class="pinyin">${escapeHtml(w.pinyin)}</td>
-      <td class="meaning">${escapeHtml(w.meaning)}</td>
+      <td class="meaning">${escapeHtml(getMeaning(w))}${pendingEs ? ' <span style="color:var(--muted);font-size:.72rem">(en)</span>' : ''}</td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   wrap.innerHTML = `
     <table>
@@ -631,7 +1175,14 @@ async function loadData(){
     const res = await fetch(SCRIPT_URL, { method: 'GET' });
     if (!res.ok) throw new Error(`El script respondió con estado ${res.status}`);
     const json = await res.json();
-    RAW_DATA = normalizeData(json);
+
+    // Compatibilidad: si el script todavía es la versión vieja (sin
+    // envoltura vocabulario/lecciones), lo tratamos como solo vocabulario.
+    const vocabJson = json && json.vocabulario ? json.vocabulario : json;
+    RAW_DATA = normalizeData(vocabJson);
+    LESSONS = (json && json.lecciones) ? json.lecciones : {};
+    PROGRESS = (json && json.progreso) ? json.progreso : {};
+
     updateCounts();
     renderLevel();
   } catch(err){
@@ -676,6 +1227,17 @@ function closeSidebarMobile(){
 
 document.getElementById('searchInput').addEventListener('input', () => {
   renderLevel();
+});
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  if (btn.dataset.lang === CURRENT_LANG) btn.classList.add('active');
+  else btn.classList.remove('active');
+  btn.addEventListener('click', () => {
+    CURRENT_LANG = btn.dataset.lang;
+    localStorage.setItem('hsk_lang', CURRENT_LANG);
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderLevel();
+  });
 });
 
 /* ---------------------------------------------------------
