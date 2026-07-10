@@ -487,6 +487,82 @@
     .match-board{ grid-template-columns: 1fr; gap:20px; }
   }
 
+  /* ---------- Reading view ---------- */
+  .reading-type-tag{
+    display:inline-block;
+    font-size:.68rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color: var(--seal-dark);
+    background: rgba(172,58,44,0.08);
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .reading-controls{
+    display:flex;
+    gap:10px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .reading-controls button{
+    border:1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    font-family:'Inter', sans-serif;
+    font-size:.8rem;
+    font-weight:600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+  }
+  .reading-controls button.active{
+    background: var(--seal);
+    border-color: var(--seal);
+    color: #F7EFDD;
+  }
+  .sentence-block{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor:pointer;
+    transition: border-color .15s ease;
+  }
+  .sentence-block:hover{ border-color: var(--seal); }
+  .sentence-zh{
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:1.5rem;
+    color: var(--ink);
+    letter-spacing:.02em;
+  }
+  .sentence-reveal{
+    max-height:0;
+    overflow:hidden;
+    transition: max-height .25s ease;
+  }
+  .sentence-block.revealed .sentence-reveal{
+    max-height:120px;
+    margin-top:10px;
+  }
+  .sentence-pinyin{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--jade);
+    font-size:.92rem;
+    margin-bottom:4px;
+  }
+  .sentence-es{
+    color: var(--ink-soft);
+    font-size:.9rem;
+  }
+  .sentence-hint{
+    font-size:.68rem;
+    color: var(--muted);
+    margin-top:2px;
+  }
+
   /* ---------- Table ---------- */
   .table-wrap{
     background: var(--card);
@@ -646,6 +722,7 @@
     <div class="subnav" id="subNav">
       <button class="subnav-btn active" data-subview="vocab">Vocabulario</button>
       <button class="subnav-btn" data-subview="lessons">Lecciones</button>
+      <button class="subnav-btn" data-subview="readings">Lecturas</button>
     </div>
 
     <div id="vocabView">
@@ -672,7 +749,12 @@
       <div class="lessons-grid" id="lessonsGrid"></div>
     </div>
 
+    <div id="readingsView" style="display:none;">
+      <div class="lessons-grid" id="readingsGrid"></div>
+    </div>
+
     <div id="lessonGameView" style="display:none;"></div>
+    <div id="readingGameView" style="display:none;"></div>
   </main>
 </div>
 
@@ -680,7 +762,7 @@
 /* =========================================================
    CONFIGURA AQUÍ tu Web App de Google Apps Script
    ========================================================= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqMZIWV7fsPODdPkyqo4mshe7u-P7z_UqZ4yCGvlY3ZYtcOAxcCeR4diXEosgWNkYX/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-BV5regJLnIC2OQ7wqVmyhsDdtI21RG5Tk1vx9zUQbWdL7pBWXeuB76_drLMbcVRx/exec";
 
 const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
 // El estándar HSK 3.0 usa 7 bandas: niveles 1 a 6 individuales,
@@ -689,11 +771,13 @@ const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
 
 let RAW_DATA = {};      // { "1": [ {hanzi, pinyin, meaning}, ... ], "2": [...], "7-9": [...] }
 let LESSONS = {};       // { "1": [ {id, titulo, categoria, palabras:[...]}, ... ] }
+let LECTURAS = {};      // { "1": [ {id, titulo, tipo, oraciones:[{zh,pinyin,es}]}, ... ] }
 let PROGRESS = {};      // { "leccion_id": {completado, mejor_puntaje, fecha} }
 let CURRENT_LEVEL = 1;
 let CURRENT_LANG = localStorage.getItem('hsk_lang') || 'es';
-let CURRENT_SUBVIEW = 'vocab'; // 'vocab' | 'lessons'
+let CURRENT_SUBVIEW = 'vocab'; // 'vocab' | 'lessons' | 'readings'
 let ACTIVE_LESSON = null;
+let ACTIVE_READING = null;
 let LOAD_ERROR = null;
 
 /* ---------------------------------------------------------
@@ -841,14 +925,18 @@ function updateSubNav(){
   });
   document.getElementById('vocabView').style.display = CURRENT_SUBVIEW === 'vocab' ? '' : 'none';
   document.getElementById('lessonsView').style.display = CURRENT_SUBVIEW === 'lessons' ? '' : 'none';
+  document.getElementById('readingsView').style.display = CURRENT_SUBVIEW === 'readings' ? '' : 'none';
   document.getElementById('lessonGameView').style.display = 'none';
+  document.getElementById('readingGameView').style.display = 'none';
   if (CURRENT_SUBVIEW === 'lessons') renderLessonsGrid();
+  if (CURRENT_SUBVIEW === 'readings') renderReadingsGrid();
 }
 
 document.querySelectorAll('.subnav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     CURRENT_SUBVIEW = btn.dataset.subview;
     ACTIVE_LESSON = null;
+    ACTIVE_READING = null;
     updateSubNav();
   });
 });
@@ -885,6 +973,99 @@ function renderLessonsGrid(){
 
   freshGrid.querySelectorAll('.lesson-card').forEach(card => {
     card.addEventListener('click', () => openLesson(card.dataset.lessonId));
+  });
+}
+
+/* ---------------------------------------------------------
+   Lecturas: diálogos, cuentos y dichos
+   --------------------------------------------------------- */
+const TIPO_LABELS = { dialogo: 'Diálogo', cuento: 'Cuento', refran: 'Dicho popular' };
+
+function renderReadingsGrid(){
+  const readings = LECTURAS[CURRENT_LEVEL];
+  const view = document.getElementById('readingsView');
+
+  if (!readings || !readings.length){
+    view.innerHTML = `
+      <div class="lessons-empty">
+        Todavía no hay lecturas para HSK ${CURRENT_LEVEL}.
+        ${CURRENT_LEVEL == 1 ? 'Revisa que la pestaña "Lecturas_HSK1" esté en tu hoja de cálculo.' : 'Por ahora solo HSK 1 tiene lecturas.'}
+      </div>`;
+    return;
+  }
+
+  view.innerHTML = `<div class="lessons-grid" id="readingsGrid"></div>`;
+  const grid = document.getElementById('readingsGrid');
+
+  grid.innerHTML = readings.map(r => `
+    <div class="lesson-card" data-reading-id="${r.id}">
+      <div class="lesson-num">${(TIPO_LABELS[r.tipo] || 'Lectura').toUpperCase()}</div>
+      <h3>${escapeHtml(r.titulo)}</h3>
+      <div class="lesson-meta">${r.oraciones.length} ${r.oraciones.length === 1 ? 'oración' : 'oraciones'}</div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.lesson-card').forEach(card => {
+    card.addEventListener('click', () => openReading(card.dataset.readingId));
+  });
+}
+
+function openReading(readingId){
+  const readings = LECTURAS[CURRENT_LEVEL] || [];
+  const reading = readings.find(r => String(r.id) === String(readingId));
+  if (!reading) return;
+  ACTIVE_READING = reading;
+
+  document.getElementById('readingsView').style.display = 'none';
+  document.getElementById('readingGameView').style.display = '';
+  renderReadingView(reading);
+}
+
+function renderReadingView(reading){
+  const container = document.getElementById('readingGameView');
+
+  container.innerHTML = `
+    <div class="game-header">
+      <button class="game-back" id="readingBackBtn">← Volver a lecturas</button>
+    </div>
+    <div class="reading-type-tag">${escapeHtml(TIPO_LABELS[reading.tipo] || 'Lectura')}</div>
+    <h2 style="font-family:'Noto Serif SC',serif;margin-bottom:6px;">${escapeHtml(reading.titulo)}</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:6px;">Toca cada oración para revelar el pinyin y la traducción.</p>
+    <div class="reading-controls">
+      <button id="revealAllBtn">Revelar todo</button>
+      <button id="hideAllBtn">Ocultar todo</button>
+    </div>
+    <div id="sentencesContainer"></div>
+  `;
+
+  document.getElementById('readingBackBtn').addEventListener('click', () => {
+    ACTIVE_READING = null;
+    container.style.display = 'none';
+    document.getElementById('readingsView').style.display = '';
+    renderReadingsGrid();
+  });
+
+  const sentencesContainer = document.getElementById('sentencesContainer');
+  sentencesContainer.innerHTML = reading.oraciones.map((o, i) => `
+    <div class="sentence-block" data-index="${i}">
+      <div class="sentence-zh">${escapeHtml(o.zh)}</div>
+      <div class="sentence-hint">toca para ver pinyin y traducción</div>
+      <div class="sentence-reveal">
+        <div class="sentence-pinyin">${escapeHtml(o.pinyin)}</div>
+        <div class="sentence-es">${escapeHtml(o.es)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  sentencesContainer.querySelectorAll('.sentence-block').forEach(block => {
+    block.addEventListener('click', () => block.classList.toggle('revealed'));
+  });
+
+  document.getElementById('revealAllBtn').addEventListener('click', () => {
+    sentencesContainer.querySelectorAll('.sentence-block').forEach(b => b.classList.add('revealed'));
+  });
+  document.getElementById('hideAllBtn').addEventListener('click', () => {
+    sentencesContainer.querySelectorAll('.sentence-block').forEach(b => b.classList.remove('revealed'));
   });
 }
 
@@ -1181,6 +1362,7 @@ async function loadData(){
     const vocabJson = json && json.vocabulario ? json.vocabulario : json;
     RAW_DATA = normalizeData(vocabJson);
     LESSONS = (json && json.lecciones) ? json.lecciones : {};
+    LECTURAS = (json && json.lecturas) ? json.lecturas : {};
     PROGRESS = (json && json.progreso) ? json.progreso : {};
 
     updateCounts();
