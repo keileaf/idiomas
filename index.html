@@ -689,6 +689,45 @@
     border-radius: var(--radius);
     overflow:hidden;
   }
+  .table-wrap.kana-grid-wrap{
+    background:transparent;
+    border:none;
+    overflow:visible;
+  }
+  .kana-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap:10px;
+  }
+  .kana-cell{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 6px 10px;
+    text-align:center;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .kana-cell:hover{
+    border-color: var(--seal);
+    transform: translateY(-2px);
+  }
+  .kana-cell-char{
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:1.7rem;
+    color: var(--ink);
+    line-height:1.1;
+  }
+  .kana-cell-romaji{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--jade);
+    font-size:.78rem;
+    margin-top:4px;
+  }
+  @media (max-width: 640px){
+    .kana-grid{ grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); }
+    .kana-cell-char{ font-size:1.4rem; }
+  }
   table{ width:100%; border-collapse:collapse; }
   thead th{
     text-align:left;
@@ -905,7 +944,7 @@
    CONFIGURA AQUÍ tu Web App de Google Apps Script
    ========================================================= */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOLtNRfHtcGKfxEVVJXRmqPWm_lqLeH5uhR7cJadwZrSPaPboUDWV0dMU8FKmzGGbN/exec";
-const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbzcPHbaO8fVESr80cNiaLsF0XYdcyCXvIbvWRGBEYxd_cY3aC9PfVfz3yUdkjO_TLv_/exec";
+const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbydeU3pJJlzCg1BKKanGP_0fvhJG3Q61LyEnjfKCQWzPqPl7xbSAMZqspnylxx5p-OI/exec";
 
 const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
 const JA_LEVELS = ['hiragana','katakana','N5','N4','N3','N2','N1'];
@@ -1688,6 +1727,12 @@ function renderTable(words){
     return;
   }
 
+  const isKanaLevel = APP_LANG === 'ja' && (CURRENT_LEVEL === 'hiragana' || CURRENT_LEVEL === 'katakana');
+  if (isKanaLevel){
+    renderKanaGrid(filtered, wrap);
+    return;
+  }
+
   const rows = filtered.map((w, i) => {
     const pendingEs = CURRENT_LANG === 'es' && !w.meaningEs;
     return `
@@ -1700,6 +1745,7 @@ function renderTable(words){
   `;
   }).join('');
 
+  wrap.classList.remove('kana-grid-wrap');
   wrap.innerHTML = `
     <table>
       <thead>
@@ -1712,6 +1758,24 @@ function renderTable(words){
       </thead>
       <tbody>${rows}</tbody>
     </table>
+  `;
+}
+
+/**
+ * Vista de cuadrícula para Hiragana/Katakana — más práctica que una tabla
+ * larga para un silabario de ~104 caracteres.
+ */
+function renderKanaGrid(words, wrap){
+  wrap.classList.add('kana-grid-wrap');
+  wrap.innerHTML = `
+    <div class="kana-grid">
+      ${words.map(w => `
+        <div class="kana-cell">
+          <div class="kana-cell-char">${escapeHtml(w.character)}</div>
+          <div class="kana-cell-romaji">${escapeHtml(w.pinyin)}</div>
+        </div>
+      `).join('')}
+    </div>
   `;
 }
 
