@@ -966,7 +966,7 @@
    CONFIGURA AQUÍ tu Web App de Google Apps Script
    ========================================================= */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOLtNRfHtcGKfxEVVJXRmqPWm_lqLeH5uhR7cJadwZrSPaPboUDWV0dMU8FKmzGGbN/exec";
-const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbxt1Zk7pK19xnQ14bBczsZA7xUgevscwAla8kbiFLDp5gjHhwvotA7Y0ETZqBlJAg40/exec";
+const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbzQWa-WSKc7Po9vVzNPe7umbw2WGIyXDWTU85TO9abazf4ntyHw2Db4_WOfuBkM3gsp/exec";
 
 const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
 const JA_LEVELS = ['katakana','hiragana','N1','N2','N3','N4','N5'];
@@ -1181,7 +1181,7 @@ function renderLessonsGrid(){
     document.getElementById('lessonsView').innerHTML = `
       <div class="lessons-empty">
         Todavía no hay lecciones armadas para HSK ${CURRENT_LEVEL}.
-        ${(APP_LANG === 'zh' && CURRENT_LEVEL == 1) ? 'Revisa que la pestaña "Lecciones_HSK1" esté en tu hoja de cálculo.' : (APP_LANG === 'ja' ? 'Las lecciones para japonés todavía no están armadas — por ahora usa Vocabulario y Escritura.' : 'Por ahora solo HSK 1 tiene lecciones — vamos agregando más niveles poco a poco.')}
+        ${(APP_LANG === 'zh' && CURRENT_LEVEL == 1) ? 'Revisa que la pestaña "Lecciones_HSK1" esté en tu hoja de cálculo.' : (APP_LANG === 'ja' && CURRENT_LEVEL === 'N5') ? 'Revisa que la pestaña "Lecciones_JLPT_N5" esté en tu hoja de cálculo.' : 'Por ahora este nivel todavía no tiene lecciones — vamos agregando más niveles poco a poco.'}
       </div>`;
     return;
   }
@@ -1220,7 +1220,7 @@ function renderReadingsGrid(){
     view.innerHTML = `
       <div class="lessons-empty">
         Todavía no hay lecturas para HSK ${CURRENT_LEVEL}.
-        ${(APP_LANG === 'zh' && CURRENT_LEVEL == 1) ? 'Revisa que la pestaña "Lecturas_HSK1" esté en tu hoja de cálculo.' : (APP_LANG === 'ja' ? 'Las lecturas para japonés todavía no están armadas — por ahora usa Vocabulario y Escritura.' : 'Por ahora solo HSK 1 tiene lecturas.')}
+        ${(APP_LANG === 'zh' && CURRENT_LEVEL == 1) ? 'Revisa que la pestaña "Lecturas_HSK1" esté en tu hoja de cálculo.' : (APP_LANG === 'ja' && CURRENT_LEVEL === 'N5') ? 'Revisa que la pestaña "Lecturas_JLPT_N5" esté en tu hoja de cálculo.' : 'Por ahora este nivel todavía no tiene lecturas.'}
       </div>`;
     return;
   }
@@ -1625,7 +1625,8 @@ function showLessonComplete(lesson, puntaje, total){
 
 async function guardarProgresoRemoto(leccionId, completado, puntaje){
   try{
-    await fetch(SCRIPT_URL, {
+    const url = APP_LANG === 'ja' ? SCRIPT_URL_JA : SCRIPT_URL;
+    await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita el preflight de CORS
       body: JSON.stringify({ accion: 'guardar_progreso', leccion_id: leccionId, completado, puntaje })
@@ -1841,8 +1842,8 @@ async function loadData(){
 
     if (APP_LANG === 'ja'){
       RAW_DATA = normalizeJapaneseData(json && json.vocabulario ? json.vocabulario : {});
-      LESSONS = {};
-      LECTURAS = {};
+      LESSONS = (json && json.lecciones) ? json.lecciones : {};
+      LECTURAS = (json && json.lecturas) ? json.lecturas : {};
     } else {
       // Compatibilidad: si el script todavía es la versión vieja (sin
       // envoltura vocabulario/lecciones), lo tratamos como solo vocabulario.
