@@ -944,10 +944,10 @@
    CONFIGURA AQUÍ tu Web App de Google Apps Script
    ========================================================= */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOLtNRfHtcGKfxEVVJXRmqPWm_lqLeH5uhR7cJadwZrSPaPboUDWV0dMU8FKmzGGbN/exec";
-const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbxg5o6dj7hbWiW95GhtnrOxFN3zW1e5f8K2-V1p-pfJx5e6LIH_MWr-g3jmYZVayrl-/exec";
+const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbxt1Zk7pK19xnQ14bBczsZA7xUgevscwAla8kbiFLDp5gjHhwvotA7Y0ETZqBlJAg40/exec";
 
 const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
-const JA_LEVELS = ['hiragana','katakana','N5','N4','N3','N2','N1'];
+const JA_LEVELS = ['katakana','hiragana','N1','N2','N3','N4','N5'];
 // El estándar HSK 3.0 usa 7 bandas: niveles 1 a 6 individuales,
 // y 7, 8 y 9 agrupados en un solo bloque "HSK 7-9" (comparten el mismo
 // vocabulario avanzado, ~5,600 palabras adicionales).
@@ -1889,6 +1889,15 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 /* ---------------------------------------------------------
    Selector de idioma: 中文 / 日本語
    --------------------------------------------------------- */
+function updateBrand(){
+  const brand = document.getElementById('brandSidebar');
+  if (APP_LANG === 'ja'){
+    brand.innerHTML = '日本語<small>Hiragana, Katakana y JLPT</small>';
+  } else {
+    brand.innerHTML = '學中文<small>Vocabulario HSK 3.0</small>';
+  }
+}
+
 document.querySelectorAll('.lang-switch-btn').forEach(btn => {
   if (btn.dataset.appLang === APP_LANG) btn.classList.add('active');
   else btn.classList.remove('active');
@@ -1898,12 +1907,7 @@ document.querySelectorAll('.lang-switch-btn').forEach(btn => {
     localStorage.setItem('app_lang', APP_LANG);
     document.querySelectorAll('.lang-switch-btn').forEach(b => b.classList.toggle('active', b === btn));
 
-    const brand = document.getElementById('brandSidebar');
-    if (APP_LANG === 'ja'){
-      brand.innerHTML = '日本語<small>Hiragana, Katakana y JLPT</small>';
-    } else {
-      brand.innerHTML = '學中文<small>Vocabulario HSK 3.0</small>';
-    }
+    updateBrand();
 
     CURRENT_LEVEL = getActiveLevels()[0];
     CURRENT_SUBVIEW = 'vocab';
@@ -1919,6 +1923,7 @@ document.querySelectorAll('.lang-switch-btn').forEach(btn => {
    Init
    --------------------------------------------------------- */
 CURRENT_LEVEL = getActiveLevels()[0];
+updateBrand();
 buildSidebar();
 loadData();
 </script>
