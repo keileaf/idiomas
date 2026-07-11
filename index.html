@@ -755,6 +755,28 @@
     color: var(--ink);
     width: 90px;
   }
+  .speak-btn{
+    border:none;
+    background: transparent;
+    color: var(--muted);
+    cursor:pointer;
+    padding: 4px;
+    border-radius: 50%;
+    vertical-align: middle;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    transition: color .15s ease, background .15s ease;
+  }
+  .speak-btn:hover{
+    color: var(--seal);
+    background: rgba(172,58,44,0.08);
+  }
+  .kana-speak-btn{
+    position:absolute;
+    top:6px; right:6px;
+  }
+  .kana-cell{ position:relative; }
   td.pinyin{
     font-family:'JetBrains Mono', monospace;
     color: var(--jade);
@@ -1738,7 +1760,7 @@ function renderTable(words){
     return `
     <tr>
       <td class="idx">${i + 1}</td>
-      <td class="hanzi">${escapeHtml(w.character)}</td>
+      <td class="hanzi">${escapeHtml(w.character)} <button class="speak-btn" data-text="${escapeHtml(w.character)}" title="Escuchar pronunciación">${SPEAKER_ICON}</button></td>
       <td class="pinyin">${escapeHtml(w.pinyin)}</td>
       <td class="meaning">${escapeHtml(getMeaning(w))}${pendingEs ? ' <span style="color:var(--muted);font-size:.72rem">(en)</span>' : ''}</td>
     </tr>
@@ -1771,6 +1793,7 @@ function renderKanaGrid(words, wrap){
     <div class="kana-grid">
       ${words.map(w => `
         <div class="kana-cell">
+          <button class="speak-btn kana-speak-btn" data-text="${escapeHtml(w.character)}" title="Escuchar pronunciación">${SPEAKER_ICON}</button>
           <div class="kana-cell-char">${escapeHtml(w.character)}</div>
           <div class="kana-cell-romaji">${escapeHtml(w.pinyin)}</div>
         </div>
@@ -1783,6 +1806,28 @@ function escapeHtml(str){
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+
+/**
+ * Reproduce la pronunciación de un texto usando la síntesis de voz que
+ * trae el propio navegador (Web Speech API) — gratis, sin API keys, sin
+ * conexión a ningún servicio externo. La calidad depende de las voces
+ * que tenga instaladas el dispositivo/navegador (Chrome en escritorio
+ * suele traer buenas voces de japonés y chino; algunos navegadores
+ * móviles pueden no tener voz para cierto idioma).
+ */
+function speak(text, lang){
+  if (!('speechSynthesis' in window)){
+    console.warn('Este navegador no soporta síntesis de voz.');
+    return;
+  }
+  window.speechSynthesis.cancel(); // corta cualquier audio anterior
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = 0.85;
+  window.speechSynthesis.speak(utter);
+}
+
+const SPEAKER_ICON = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>`;
 
 /* ---------------------------------------------------------
    Carga de datos
@@ -1873,6 +1918,16 @@ function closeSidebarMobile(){
 
 document.getElementById('searchInput').addEventListener('input', () => {
   renderLevel();
+});
+
+// Un solo listener delegado para todos los íconos de "escuchar" (tabla y
+// cuadrícula de kana), sin importar cuántas filas/tarjetas se rendericen.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.speak-btn');
+  if (!btn) return;
+  const text = btn.dataset.text;
+  const lang = APP_LANG === 'ja' ? 'ja-JP' : 'zh-CN';
+  speak(text, lang);
 });
 
 document.querySelectorAll('.lang-btn').forEach(btn => {
