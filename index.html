@@ -374,6 +374,148 @@
     color: var(--muted);
   }
 
+  /* ---------- Classifiers reference ---------- */
+  .classifiers-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap:14px;
+    margin-top: 14px;
+  }
+  .classifier-card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .classifier-card-header{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom: 8px;
+  }
+  .classifier-char{
+    font-family:'Noto Serif SC', serif;
+    font-weight:900;
+    font-size:1.6rem;
+    color: var(--seal);
+  }
+  .classifier-pinyin{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--jade);
+    font-size:.9rem;
+  }
+  .classifier-card-header .speak-btn{ margin-left:auto; }
+  .classifier-uso{
+    font-size:.85rem;
+    color: var(--ink-soft);
+    line-height:1.5;
+    margin-bottom: 8px;
+  }
+  .classifier-ejemplos{
+    font-size:.78rem;
+    color: var(--muted);
+    line-height:1.5;
+  }
+
+  /* ---------- Adivina el Hanzi (quiz) ---------- */
+  .quiz-toolbar{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin: 20px 0 30px;
+  }
+  .quiz-select{
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    font-family:'Inter', sans-serif;
+    font-size:.88rem;
+    padding: 9px 12px;
+    border-radius: var(--radius);
+  }
+  .quiz-score{
+    font-size:.82rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .quiz-card{
+    max-width: 480px;
+    margin: 0 auto;
+    text-align:center;
+  }
+  .quiz-hanzi{
+    font-family:'Noto Serif SC', serif;
+    font-weight:900;
+    font-size:5rem;
+    color: var(--ink);
+    margin: 30px 0 8px;
+    line-height:1;
+  }
+  .quiz-hanzi-sub{
+    color: var(--muted);
+    font-size:.85rem;
+    margin-bottom: 30px;
+  }
+  .quiz-options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .quiz-option{
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    text-align:left;
+    cursor:pointer;
+    font-family:'Inter', sans-serif;
+    transition: border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .quiz-option:hover:not(:disabled){
+    border-color: var(--seal);
+    transform: translateX(2px);
+  }
+  .quiz-option:disabled{ cursor:default; }
+  .quiz-option .opt-pinyin{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--jade);
+    font-weight:600;
+    display:block;
+    margin-bottom: 2px;
+  }
+  .quiz-option .opt-meaning{
+    color: var(--ink-soft);
+    font-size:.92rem;
+  }
+  .quiz-option.correct{
+    background: rgba(63,102,86,0.1);
+    border-color: var(--jade);
+  }
+  .quiz-option.incorrect{
+    background: rgba(172,58,44,0.08);
+    border-color: var(--seal);
+  }
+  .quiz-feedback{
+    min-height: 26px;
+    margin: 18px 0 6px;
+    font-weight:600;
+    font-size:.95rem;
+  }
+  .quiz-feedback.correct{ color: var(--jade); }
+  .quiz-feedback.incorrect{ color: var(--seal-dark); }
+  .quiz-next-btn{
+    margin-top: 8px;
+    border: 1px solid var(--line);
+    background: var(--seal);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: var(--radius);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    cursor:pointer;
+  }
+
   /* ---------- Matching game ---------- */
   .game-header{
     display:flex;
@@ -784,6 +926,18 @@
     width: 160px;
   }
   td.meaning{ color: var(--ink-soft); }
+  .classifier-badge{
+    display:inline-block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem;
+    color: var(--seal-dark);
+    background: rgba(172,58,44,0.08);
+    border: 1px solid rgba(172,58,44,0.25);
+    padding: 1px 7px;
+    border-radius: 999px;
+    margin-left: 8px;
+    white-space: nowrap;
+  }
   td.idx{
     color: var(--muted);
     font-family:'JetBrains Mono', monospace;
@@ -908,6 +1062,8 @@
       <button class="subnav-btn" data-subview="lessons">Lecciones</button>
       <button class="subnav-btn" data-subview="readings">Lecturas</button>
       <button class="subnav-btn" data-subview="writing">Escritura</button>
+      <button class="subnav-btn" data-subview="classifiers" id="classifiersTabBtn">Clasificadores</button>
+      <button class="subnav-btn" data-subview="quiz">Adivina el Hanzi</button>
     </div>
 
     <div id="vocabView">
@@ -938,6 +1094,12 @@
       <div class="lessons-grid" id="readingsGrid"></div>
     </div>
 
+    <div id="classifiersView" style="display:none;">
+      <div id="classifiersGrid"></div>
+    </div>
+
+    <div id="quizView" style="display:none;"></div>
+
     <div id="writingView" style="display:none;">
       <div class="writing-layout">
         <div class="char-picker">
@@ -965,8 +1127,8 @@
 /* =========================================================
    CONFIGURA AQUÍ tu Web App de Google Apps Script
    ========================================================= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOLtNRfHtcGKfxEVVJXRmqPWm_lqLeH5uhR7cJadwZrSPaPboUDWV0dMU8FKmzGGbN/exec";
-const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbzQWa-WSKc7Po9vVzNPe7umbw2WGIyXDWTU85TO9abazf4ntyHw2Db4_WOfuBkM3gsp/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw900iXCpVC_wzzJ9o9IrJ4cl6xstzSAVJupd5iFNSVNT6OlqpKH-xj7_JIlJ9LCted/exec";
+const SCRIPT_URL_JA = "https://script.google.com/macros/s/AKfycbwBOqB0-0m-LDOx9Uq8IEHXncUyNaHp5OhVwOAb-IvF2iT04Tu2-c_wNEVWR9Ui0AgL/exec";
 
 const HSK_LEVELS = [1,2,3,4,5,6,'7-9'];
 const JA_LEVELS = ['katakana','hiragana','N1','N2','N3','N4','N5'];
@@ -977,6 +1139,7 @@ const JA_LEVELS = ['katakana','hiragana','N1','N2','N3','N4','N5'];
 let RAW_DATA = {};      // { "1": [ {hanzi, pinyin, meaning}, ... ], "2": [...], "7-9": [...] }
 let LESSONS = {};       // { "1": [ {id, titulo, categoria, palabras:[...]}, ... ] }
 let LECTURAS = {};      // { "1": [ {id, titulo, tipo, oraciones:[{zh,pinyin,es}]}, ... ] }
+let CLASIFICADORES = []; // [ {clasificador, pinyin, uso, ejemplos}, ... ] (solo chino)
 let PROGRESS = {};      // { "leccion_id": {completado, mejor_puntaje, fecha} }
 let CURRENT_LEVEL = 1;
 let APP_LANG = localStorage.getItem('app_lang') || 'zh'; // 'zh' | 'ja'
@@ -995,6 +1158,7 @@ const FIELD_PATTERNS = {
   pinyin:    /^(pinyin|拼音)$/i,
   meaning:   /^(traducci[oó]n|significado|meaning|espa[nñ]ol|english|ingl[eé]s|意思|翻译)$/i,
   meaningEs: /^(traducci[oó]n_?es|traduccion_?espanol|traduccion_?spa|es|spanish)$/i,
+  classifier: /^(clasificador|classifier|量词|measure_?word)$/i,
   level:     /^(nivel|level|hsk|hsk_?level|等级)$/i
 };
 
@@ -1068,6 +1232,7 @@ function rowToEntry(row){
   const pinyin = findField(row, 'pinyin');
   const meaning = findField(row, 'meaning');
   const meaningEs = findField(row, 'meaningEs');
+  const classifier = findField(row, 'classifier');
   const level = normalizeLevelValue(findField(row, 'level'));
   if (!character && !pinyin && !meaning) return null;
   return {
@@ -1075,6 +1240,7 @@ function rowToEntry(row){
     pinyin: pinyin ? String(pinyin).trim() : '',
     meaning: meaning ? String(meaning).trim() : '',
     meaningEs: meaningEs ? String(meaningEs).trim() : '',
+    classifier: classifier ? String(classifier).trim() : '',
     level
   };
 }
@@ -1149,6 +1315,9 @@ function selectLevel(level){
    Sub-nav: Vocabulario / Lecciones
    --------------------------------------------------------- */
 function updateSubNav(){
+  document.getElementById('classifiersTabBtn').style.display = APP_LANG === 'zh' ? '' : 'none';
+  if (APP_LANG === 'ja' && CURRENT_SUBVIEW === 'classifiers') CURRENT_SUBVIEW = 'vocab';
+
   document.querySelectorAll('.subnav-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.subview === CURRENT_SUBVIEW);
   });
@@ -1156,11 +1325,15 @@ function updateSubNav(){
   document.getElementById('lessonsView').style.display = CURRENT_SUBVIEW === 'lessons' ? '' : 'none';
   document.getElementById('readingsView').style.display = CURRENT_SUBVIEW === 'readings' ? '' : 'none';
   document.getElementById('writingView').style.display = CURRENT_SUBVIEW === 'writing' ? '' : 'none';
+  document.getElementById('classifiersView').style.display = CURRENT_SUBVIEW === 'classifiers' ? '' : 'none';
+  document.getElementById('quizView').style.display = CURRENT_SUBVIEW === 'quiz' ? '' : 'none';
   document.getElementById('lessonGameView').style.display = 'none';
   document.getElementById('readingGameView').style.display = 'none';
   if (CURRENT_SUBVIEW === 'lessons') renderLessonsGrid();
   if (CURRENT_SUBVIEW === 'readings') renderReadingsGrid();
   if (CURRENT_SUBVIEW === 'writing') renderWritingView();
+  if (CURRENT_SUBVIEW === 'classifiers') renderClassifiersGrid();
+  if (CURRENT_SUBVIEW === 'quiz') renderQuizView();
 }
 
 document.querySelectorAll('.subnav-btn').forEach(btn => {
@@ -1171,6 +1344,223 @@ document.querySelectorAll('.subnav-btn').forEach(btn => {
     updateSubNav();
   });
 });
+
+/* ---------------------------------------------------------
+   Referencia de clasificadores (量词)
+   --------------------------------------------------------- */
+/* ---------------------------------------------------------
+   Adivina el Hanzi (quiz de opción múltiple)
+   --------------------------------------------------------- */
+let QUIZ_POOLS = {};       // { "Todo el nivel": [...], "Animales": [...], ... }
+let QUIZ_CURRENT_POOL = 'Todo el nivel';
+let QUIZ_CORRECT = null;
+let QUIZ_SCORE = { correctas: 0, total: 0 };
+let QUIZ_ANSWERED = false;
+
+/**
+ * Quita los tonos (diacríticos) del pinyin para comparar solo la sílaba
+ * base — así "mā" y "mǎ" se consideran "el mismo sonido" al filtrar
+ * distractores (evita opciones ambiguas donde dos respuestas suenan
+ * casi igual y solo cambia el tono).
+ */
+function pinyinBase(py){
+  return String(py || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z]/g, '');
+}
+
+/**
+ * Arma los conjuntos de preguntas posibles para el nivel actual:
+ * "Todo el nivel" (todo el vocabulario cargado) + una entrada por cada
+ * categoría de Lecciones, si existen para este nivel (reutiliza los
+ * mismos textos que ya se muestran en Vocabulario, respetando ES/EN).
+ */
+function buildQuizPools(level){
+  const allWords = (RAW_DATA[level] || []).filter(w => w.character && w.pinyin);
+  const pools = { 'Todo el nivel': allWords };
+
+  const charIndex = new Map();
+  allWords.forEach(w => charIndex.set(w.character, w));
+
+  const lessons = LESSONS[level] || [];
+  if (lessons.length){
+    const byCategoria = new Map();
+    lessons.forEach(lesson => {
+      const cat = lesson.categoria || lesson.titulo;
+      if (!byCategoria.has(cat)) byCategoria.set(cat, new Map());
+      const bucket = byCategoria.get(cat);
+      lesson.palabras.forEach(p => {
+        if (!p.caracter) return;
+        if (!bucket.has(p.caracter)){
+          const fromVocab = charIndex.get(p.caracter);
+          bucket.set(p.caracter, fromVocab || {
+            character: p.caracter, pinyin: p.pinyin,
+            meaning: p.significado, meaningEs: '', level
+          });
+        }
+      });
+    });
+    byCategoria.forEach((bucket, cat) => {
+      pools[cat] = Array.from(bucket.values());
+    });
+  }
+
+  return pools;
+}
+
+/**
+ * Elige distractores que NO sean confundibles con la respuesta correcta:
+ * distinto carácter, distinta sílaba base de pinyin (sin importar el tono),
+ * y distinto significado mostrado. Si el conjunto es muy chico, relaja
+ * las condiciones en ese orden para no trabarse.
+ */
+function pickDistractors(pool, correct, count){
+  const correctMeaning = getMeaning(correct);
+  const correctBase = pinyinBase(correct.pinyin);
+
+  const levels = [
+    w => w.character !== correct.character && pinyinBase(w.pinyin) !== correctBase && getMeaning(w) !== correctMeaning,
+    w => w.character !== correct.character && pinyinBase(w.pinyin) !== correctBase,
+    w => w.character !== correct.character
+  ];
+
+  for (const filterFn of levels){
+    const candidates = shuffle(pool.filter(filterFn));
+    if (candidates.length >= count) return candidates.slice(0, count);
+  }
+  return shuffle(pool.filter(w => w.character !== correct.character)).slice(0, count);
+}
+
+function renderQuizView(){
+  QUIZ_POOLS = buildQuizPools(CURRENT_LEVEL);
+  const poolNames = Object.keys(QUIZ_POOLS);
+
+  if (!QUIZ_POOLS['Todo el nivel'] || QUIZ_POOLS['Todo el nivel'].length < 3){
+    document.getElementById('quizView').innerHTML = `
+      <div class="lessons-empty">Este nivel todavía no tiene suficiente vocabulario cargado para armar el quiz.</div>`;
+    return;
+  }
+
+  if (!poolNames.includes(QUIZ_CURRENT_POOL)) QUIZ_CURRENT_POOL = 'Todo el nivel';
+  QUIZ_SCORE = { correctas: 0, total: 0 };
+
+  const view = document.getElementById('quizView');
+  view.innerHTML = `
+    <div class="quiz-toolbar">
+      <select class="quiz-select" id="quizPoolSelect">
+        ${poolNames.map(n => `<option value="${escapeHtml(n)}" ${n === QUIZ_CURRENT_POOL ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('')}
+      </select>
+      <div class="quiz-score" id="quizScore">0 aciertos de 0</div>
+    </div>
+    <div class="quiz-card" id="quizCard"></div>
+  `;
+
+  document.getElementById('quizPoolSelect').addEventListener('change', (e) => {
+    QUIZ_CURRENT_POOL = e.target.value;
+    QUIZ_SCORE = { correctas: 0, total: 0 };
+    nextQuizQuestion();
+  });
+
+  nextQuizQuestion();
+}
+
+function nextQuizQuestion(){
+  const pool = QUIZ_POOLS[QUIZ_CURRENT_POOL] || [];
+  if (pool.length < 3){
+    document.getElementById('quizCard').innerHTML = `<div class="lessons-empty">Esta categoría no tiene suficientes palabras para el quiz todavía.</div>`;
+    return;
+  }
+
+  QUIZ_ANSWERED = false;
+  QUIZ_CORRECT = pool[Math.floor(Math.random() * pool.length)];
+  const distractors = pickDistractors(pool, QUIZ_CORRECT, 2);
+  const options = shuffle([QUIZ_CORRECT, ...distractors]);
+
+  document.getElementById('quizScore').textContent = `${QUIZ_SCORE.correctas} aciertos de ${QUIZ_SCORE.total}`;
+
+  const card = document.getElementById('quizCard');
+  card.innerHTML = `
+    <div class="quiz-hanzi">${escapeHtml(QUIZ_CORRECT.character)} <button class="speak-btn" data-text="${escapeHtml(QUIZ_CORRECT.character)}" title="Escuchar pronunciación">${SPEAKER_ICON}</button></div>
+    <div class="quiz-hanzi-sub">¿Cuál es el pinyin y el significado correctos?</div>
+    <div class="quiz-options">
+      ${options.map((opt, i) => `
+        <button class="quiz-option" data-index="${i}" data-correct="${opt === QUIZ_CORRECT ? 'true' : 'false'}">
+          <span class="opt-pinyin">${escapeHtml(opt.pinyin)}</span>
+          <span class="opt-meaning">${escapeHtml(getMeaning(opt))}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+  `;
+
+  card.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.addEventListener('click', () => handleQuizAnswer(btn));
+  });
+}
+
+function handleQuizAnswer(btn){
+  if (QUIZ_ANSWERED) return;
+  QUIZ_ANSWERED = true;
+
+  const isCorrect = btn.dataset.correct === 'true';
+  QUIZ_SCORE.total++;
+  if (isCorrect) QUIZ_SCORE.correctas++;
+  document.getElementById('quizScore').textContent = `${QUIZ_SCORE.correctas} aciertos de ${QUIZ_SCORE.total}`;
+
+  const card = document.getElementById('quizCard');
+  card.querySelectorAll('.quiz-option').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.correct === 'true') b.classList.add('correct');
+    else if (b === btn) b.classList.add('incorrect');
+  });
+
+  const feedback = document.getElementById('quizFeedback');
+  if (isCorrect){
+    feedback.textContent = '¡Correcto!';
+    feedback.className = 'quiz-feedback correct';
+    setTimeout(nextQuizQuestion, 900);
+  } else {
+    feedback.innerHTML = `Casi — la respuesta correcta era <strong>${escapeHtml(QUIZ_CORRECT.pinyin)}</strong> (${escapeHtml(getMeaning(QUIZ_CORRECT))}).`;
+    feedback.className = 'quiz-feedback incorrect';
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'quiz-next-btn';
+    nextBtn.textContent = 'Siguiente';
+    nextBtn.addEventListener('click', nextQuizQuestion);
+    card.appendChild(nextBtn);
+  }
+}
+
+function renderClassifiersGrid(){
+  const view = document.getElementById('classifiersView');
+
+  if (!CLASIFICADORES.length){
+    view.innerHTML = `
+      <div class="lessons-empty">
+        Todavía no hay datos de clasificadores — revisa que la pestaña "Clasificadores" esté en tu hoja de cálculo.
+      </div>`;
+    return;
+  }
+
+  view.innerHTML = `
+    <p style="color:var(--muted); font-size:.85rem; margin:20px 0 4px;">
+      Los clasificadores (量词) van entre el número y el sustantivo al contar cosas en chino — por ejemplo "一 <strong>个</strong> 人" (una persona), no solo "一人".
+    </p>
+    <div class="classifiers-grid" id="classifiersGrid"></div>
+  `;
+
+  const grid = document.getElementById('classifiersGrid');
+  grid.innerHTML = CLASIFICADORES.map(c => `
+    <div class="classifier-card">
+      <div class="classifier-card-header">
+        <div class="classifier-char">${escapeHtml(c.clasificador)}</div>
+        <div class="classifier-pinyin">${escapeHtml(c.pinyin)}</div>
+        <button class="speak-btn" data-text="${escapeHtml(c.clasificador)}" title="Escuchar pronunciación">${SPEAKER_ICON}</button>
+      </div>
+      <div class="classifier-uso">${escapeHtml(c.uso)}</div>
+      ${c.ejemplos ? `<div class="classifier-ejemplos"><strong>Ejemplos:</strong> ${escapeHtml(c.ejemplos)}</div>` : ''}
+    </div>
+  `).join('');
+}
 
 function renderLessonsGrid(){
   const grid = document.getElementById('lessonsGrid');
@@ -1314,7 +1704,8 @@ function getUniqueCharsForLevel(level){
   const isKanaLevel = (level === 'hiragana' || level === 'katakana');
   const pattern = isKanaLevel ? /[\u3040-\u30ff]/ : /[\u4e00-\u9fff]/;
   words.forEach(w => {
-    for (const ch of w.character){
+    if (!w || !w.character) return; // fila vacía o mal formada: se ignora sin tronar todo
+    for (const ch of String(w.character)){
       if (pattern.test(ch) && !seen.has(ch)){
         seen.add(ch);
         chars.push(ch);
@@ -1324,13 +1715,41 @@ function getUniqueCharsForLevel(level){
   return chars;
 }
 
+/**
+ * Para chino: junta los caracteres únicos de TODOS los niveles HSK ya
+ * cargados (no solo el nivel que tengas seleccionado en el sidebar), para
+ * que la pestaña de Escritura pueda practicar cualquier carácter de
+ * cualquier HSK, y el botón "aleatorio" tenga de dónde escoger de verdad.
+ */
+function getUniqueCharsAllLevels(){
+  const seen = new Set();
+  const chars = [];
+  HSK_LEVELS.forEach(level => {
+    getUniqueCharsForLevel(level).forEach(ch => {
+      if (!seen.has(ch)){
+        seen.add(ch);
+        chars.push(ch);
+      }
+    });
+  });
+  return chars;
+}
+
 function renderWritingView(){
-  WRITING_CHARS = getUniqueCharsForLevel(CURRENT_LEVEL);
+  try{
+    WRITING_CHARS = (APP_LANG === 'zh')
+      ? getUniqueCharsAllLevels()
+      : getUniqueCharsForLevel(CURRENT_LEVEL);
+  } catch(err){
+    console.error('Error armando la lista de caracteres para escritura:', err);
+    WRITING_CHARS = [];
+  }
+
   const chipList = document.getElementById('charChipList');
 
   if (!WRITING_CHARS.length){
     chipList.innerHTML = '';
-    document.getElementById('writerInfo').textContent = 'No hay caracteres cargados todavía para este nivel.';
+    document.getElementById('writerInfo').textContent = 'No hay caracteres cargados todavía — revisa que el vocabulario haya cargado bien en la pestaña Vocabulario.';
     return;
   }
 
@@ -1763,7 +2182,7 @@ function renderTable(words){
       <td class="idx">${i + 1}</td>
       <td class="hanzi">${escapeHtml(w.character)} <button class="speak-btn" data-text="${escapeHtml(w.character)}" title="Escuchar pronunciación">${SPEAKER_ICON}</button></td>
       <td class="pinyin">${escapeHtml(w.pinyin)}</td>
-      <td class="meaning">${escapeHtml(getMeaning(w))}${pendingEs ? ' <span style="color:var(--muted);font-size:.72rem">(en)</span>' : ''}</td>
+      <td class="meaning">${escapeHtml(getMeaning(w))}${pendingEs ? ' <span style="color:var(--muted);font-size:.72rem">(en)</span>' : ''}${w.classifier ? ` <span class="classifier-badge" title="Clasificador">量:${escapeHtml(w.classifier)}</span>` : ''}</td>
     </tr>
   `;
   }).join('');
@@ -1844,6 +2263,7 @@ async function loadData(){
       RAW_DATA = normalizeJapaneseData(json && json.vocabulario ? json.vocabulario : {});
       LESSONS = (json && json.lecciones) ? json.lecciones : {};
       LECTURAS = (json && json.lecturas) ? json.lecturas : {};
+      CLASIFICADORES = [];
     } else {
       // Compatibilidad: si el script todavía es la versión vieja (sin
       // envoltura vocabulario/lecciones), lo tratamos como solo vocabulario.
@@ -1851,6 +2271,7 @@ async function loadData(){
       RAW_DATA = normalizeData(vocabJson);
       LESSONS = (json && json.lecciones) ? json.lecciones : {};
       LECTURAS = (json && json.lecturas) ? json.lecturas : {};
+      CLASIFICADORES = (json && json.clasificadores) ? json.clasificadores : [];
     }
     PROGRESS = (json && json.progreso) ? json.progreso : {};
 
@@ -1981,6 +2402,7 @@ document.querySelectorAll('.lang-switch-btn').forEach(btn => {
 CURRENT_LEVEL = getActiveLevels()[0];
 updateBrand();
 buildSidebar();
+updateSubNav();
 loadData();
 </script>
 </body>
